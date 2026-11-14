@@ -13,13 +13,16 @@ terminals, tunnels and git; the editor of the SEL suite, next to SELect (`sel-pi
 **Why:** VS Code brought the (passively cooled) machine down: cpptools ate all the RAM and
 swap, heavy builds ran in parallel until the SSDs shut down from the heat. So SELforge:
 
-- has **no indexer** and no language server; finds files on demand (`git ls-files`, a walk
-  past `node_modules`, `build`, …), nothing runs in the background
+- has **no indexer**; finds files on demand (`git ls-files`, a walk past `node_modules`,
+  `build`, …), nothing runs in the background. clangd only when turned on for a folder,
+  with a memory limit, and stopped when idle
 - watches nothing: the open files and the tree are checked when the window comes back
   (after a `git checkout` or a build in the terminal)
 - one Node.js process and one browser window; nothing installed on a remote machine
   (SSH: SFTP and a shell, no remote server)
 - runs what it runs one at a time (the tasks of M4: niced, a bounded `-j`)
+
+<p align="center"><img src="img/editor.png" width="900" alt="SELforge: the tree, the editor, the terminals"></p>
 
 ## Installing
 
@@ -112,6 +115,8 @@ terminals are shells on the host (in the folder), Ctrl+P lists its files with `g
 
 ## Git
 
+<p align="center"><img src="img/git.png" width="900" alt="The Git panel and a change next to the old version"></p>
+
 **Git** on the left (Ctrl+Shift+G; Files: Ctrl+Shift+E), with the number of changed files;
 the tree marks them too (M changed, U new, D deleted, a dot on the folders holding them).
 All of it is the `git` command in the folder, locally or on the host, one command at a
@@ -127,11 +132,40 @@ git's message (the agent, or a push in a terminal, then).
   against HEAD, or the work tree against the index), the unchanged parts folded; on the
   row: open the file, discard (an untracked file: delete), stage / unstage; all at once on
   the heading
+- several files at once: Ctrl/⌘+click, Shift+click, then a right click: stage, unstage,
+  discard / delete
 - **History**: the last 200 commits with their branches and tags; a click lists the files
   of one, a file its change in that commit
 - a folder inside a repository: the lists are the whole repository's
 - a merge, a rebase or a cherry-pick stopped half way is said; it is finished (or aborted)
   in a terminal
+
+## AI: Claude and Codex
+
+<img src="img/ai-chat.png" width="380" align="right" alt="The AI panel: Claude and Codex tabs, the folder's conversations">
+
+**AI** on the right edge (Ctrl+Alt+C) talks about the folder open, with **Claude Code** or
+**Codex** on two tabs (both may work at once). They read, search, edit and run commands in
+the folder; edits and commands ask first, as the permissions chosen say. Ctrl+Alt+C in the
+editor puts the selection into the question, **✦ AI** in Problems asks about a compiler
+message, **✦ message** in Git writes the commit message, **✦ AI** resolves a conflict.
+
+**What it needs**: the CLI of the provider, installed and logged in **on the folder's
+machine**: this computer for a local folder, **the SSH host** for a folder there (it runs
+there, in the folder, as your user). Nothing is needed on the machine of the browser, and
+SELforge keeps no API key: the CLI uses its own login (your Claude or ChatGPT account).
+
+```sh
+# Claude Code
+curl -fsSL https://claude.ai/install.sh | bash
+claude                      # once, in a terminal: log in
+# Codex
+npm install -g @openai/codex
+codex login
+```
+
+The conversations are kept in the folder, one file each (`.selforge/chats/`, out of git);
+the panel shows the context used and the account's 5-hour and weekly limits.
 
 ## Tasks and the SEL tools
 
